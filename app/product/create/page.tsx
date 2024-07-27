@@ -1,4 +1,5 @@
 import { createProduct } from "@/actions";
+import FormSubmitButton from "@/components/form-submit-button";
 
 export default function CreateProduct() {
   return (
@@ -46,9 +47,7 @@ export default function CreateProduct() {
         />
       </label>
 
-      <button className="btn btn-primary w-full" type="submit">
-        Submit
-      </button>
+      <FormSubmitButton className="w-full">Submit</FormSubmitButton>
     </form>
   );
 }
