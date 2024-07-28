@@ -1,6 +1,6 @@
 "use server";
 
-import { z, ZodError } from "zod";
+import { z } from "zod";
 import { redirect } from "next/navigation";
 import db from "@/prisma/client";
 
@@ -11,14 +11,34 @@ const CreateProductSchema = z.object({
   price: z.coerce.number().min(1),
 });
 
-export async function createProduct(formData: FormData) {
-  const validationResult = CreateProductSchema.parse(
-    Object.fromEntries(formData.entries()),
-  );
+type ActionStateType = {
+  message?: string;
+  errors?: {
+    name?: string[];
+    price?: string[];
+    imageURL?: string[];
+    description?: string[];
+  };
+};
 
-  const { name, description, imageURL, price } = validationResult;
-
+export async function createProduct(
+  _: ActionStateType,
+  formData: FormData,
+): Promise<ActionStateType> {
   try {
+    const validationResult = CreateProductSchema.safeParse(
+      Object.fromEntries(formData.entries()),
+    );
+
+    if (!validationResult.success) {
+      return {
+        message: "Validation Error!",
+        errors: validationResult.error.flatten().fieldErrors,
+      };
+    }
+
+    const { name, description, imageURL, price } = validationResult.data;
+
     await db.product.create({
       data: {
         name,
@@ -28,16 +48,15 @@ export async function createProduct(formData: FormData) {
       },
     });
   } catch (error) {
-    console.error(error);
-    if (error instanceof ZodError) {
-      throw new Error(error.issues.join(", "));
-    }
-
     if (error instanceof Error) {
-      throw error;
+      return {
+        message: error.message,
+      };
     }
 
-    throw new Error("Failed to create the product!");
+    return {
+      message: "Failed to create the product!",
+    };
   }
 
   redirect("/");
