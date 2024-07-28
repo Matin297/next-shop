@@ -1,9 +1,13 @@
-import Image from "next/image";
+import { Suspense } from "react";
+import ProductList from "@/components/home/product-list";
 
-export default function Home() {
+export default async function Home() {
   return (
     <>
-      <h2>Here goes the list of products</h2>
+      <h2 className="mb-4 text-xl font-semibold">Products</h2>
+      <Suspense fallback={<p>loading...</p>}>
+        <ProductList />
+      </Suspense>
     </>
   );
 }
