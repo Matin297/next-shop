@@ -1,4 +1,6 @@
+import { cache } from "react";
 import db from "@/prisma/client";
+import { notFound } from "next/navigation";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 export async function getProducts() {
@@ -22,11 +24,15 @@ export async function getProducts() {
 
 export async function getProduct(id: string) {
   try {
-    return db.product.findUnique({
+    const product = await db.product.findUnique({
       where: {
         id,
       },
     });
+
+    if (!product) notFound();
+
+    return product;
   } catch (error) {
     if (
       error instanceof PrismaClientKnownRequestError ||
@@ -42,3 +48,5 @@ export async function getProduct(id: string) {
     throw new Error("Failed to fetch the product details!");
   }
 }
+
+export const getCachedProduct = cache(getProduct);

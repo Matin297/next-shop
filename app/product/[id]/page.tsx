@@ -1,7 +1,7 @@
 import Image from "next/image";
-import { getProduct } from "@/lib/data";
-import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { formatPrice } from "@/lib/utils";
+import { getCachedProduct } from "@/lib/data";
 
 interface ProductDetailsProps {
   params: {
@@ -9,12 +9,24 @@ interface ProductDetailsProps {
   };
 }
 
+export async function generateMetadata({
+  params: { id },
+}: ProductDetailsProps): Promise<Metadata> {
+  const product = await getCachedProduct(id);
+
+  return {
+    title: product.name,
+    description: product.description,
+    openGraph: {
+      images: [product.imageURL],
+    },
+  };
+}
+
 export default async function ProductDetails({
   params: { id },
 }: ProductDetailsProps) {
-  const product = await getProduct(id);
-
-  if (!product) notFound();
+  const product = await getCachedProduct(id);
 
   return (
     <div className="card bg-base-100 shadow-xl md:card-side">
