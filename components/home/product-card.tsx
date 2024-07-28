@@ -32,8 +32,8 @@ export default function ProductCard({
             {isNew && <span className="badge badge-primary badge-sm">New</span>}
           </h3>
           <p>{description}</p>
-          <p>{formatPrice(price)}</p>
-          <div className="card-actions justify-end">
+          <div className="card-actions items-center justify-end">
+            <p>{formatPrice(price)}</p>
             <button className="btn btn-primary">Buy Now</button>
           </div>
         </section>
