@@ -1,6 +1,6 @@
 "use client";
 
-import { incrementQuantity } from "@/actions";
+import { incrementQuantity, decrementQuantity } from "@/actions";
 import { useOptimistic, useState } from "react";
 
 interface AddToCartProps {
@@ -18,7 +18,10 @@ export default function AddToCart({ productId, quantity = 0 }: AddToCartProps) {
   async function handleUpdateQuantity(formData: FormData) {
     const step = Number(formData.get("step"));
     updateOptimisticQuantity(step);
-    const { message } = await incrementQuantity(productId);
+    const { message } =
+      step < 0
+        ? await decrementQuantity(productId)
+        : await incrementQuantity(productId);
     setMessage(message);
   }
 
@@ -36,7 +39,7 @@ export default function AddToCart({ productId, quantity = 0 }: AddToCartProps) {
       </form>
     ) : (
       <div className="flex items-center gap-2">
-        <form>
+        <form action={handleUpdateQuantity}>
           <input type="hidden" name="step" value="-1" />
           <button
             type="submit"
