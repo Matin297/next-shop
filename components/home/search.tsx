@@ -1,8 +1,8 @@
 "use client";
 
+import { ChangeEvent } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { ChangeEvent } from "react";
 
 export default function Search() {
   const router = useRouter();
@@ -26,13 +26,14 @@ export default function Search() {
   );
 
   return (
-    <div className="form-control">
+    <div className="form-control w-full sm:max-w-md">
       <input
         name="q"
         type="text"
+        defaultValue={searchParams.get("q") || ""}
         placeholder="Search"
         onChange={handleQueryChange}
-        className="input input-sm input-bordered w-full min-w-10 sm:w-auto"
+        className="input input-bordered"
       />
     </div>
   );
