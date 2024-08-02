@@ -2,6 +2,7 @@ import Image from "next/image";
 import type { Metadata } from "next";
 import { formatPrice } from "@/lib/utils";
 import { getCachedProduct } from "@/lib/data";
+import AddToCart from "@/components/add-to-cart";
 
 interface ProductDetailsProps {
   params: {
@@ -18,6 +19,7 @@ export async function generateMetadata({
     title: product.name,
     description: product.description,
     openGraph: {
+      url: "images.unsplash.com",
       images: [product.imageURL],
     },
   };
@@ -32,6 +34,7 @@ export default async function ProductDetails({
     <div className="card bg-base-100 shadow-xl md:card-side">
       <figure className="basis-3/5">
         <Image
+          priority
           alt={product.name}
           width={800}
           height={500}
@@ -44,7 +47,10 @@ export default async function ProductDetails({
         <p>{product.description}</p>
         <div className="card-actions items-center justify-end">
           <p>{formatPrice(product.price)}</p>
-          <button className="btn btn-primary">Add to Cart</button>
+          <AddToCart
+            productId={product.id}
+            quantity={product.cartItems[0]?.quantity}
+          />
         </div>
       </div>
     </div>
