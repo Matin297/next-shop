@@ -8,9 +8,20 @@ import {
   PrismaClientUnknownRequestError,
 } from "@prisma/client/runtime/library";
 
-export async function getProducts() {
+type ProductFilterOptionsType = {
+  query?: string;
+};
+
+export async function getProducts({ query = "" }: ProductFilterOptionsType) {
   try {
-    return db.product.findMany();
+    return db.product.findMany({
+      where: {
+        OR: [
+          { name: { contains: query, mode: "insensitive" } },
+          { description: { contains: query, mode: "insensitive" } },
+        ],
+      },
+    });
   } catch (error) {
     if (
       error instanceof PrismaClientKnownRequestError ||
