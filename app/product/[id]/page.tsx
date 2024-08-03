@@ -19,7 +19,6 @@ export async function generateMetadata({
     title: product.name,
     description: product.description,
     openGraph: {
-      url: "images.unsplash.com",
       images: [product.imageURL],
     },
   };
@@ -32,14 +31,14 @@ export default async function ProductDetails({
 
   return (
     <div className="card bg-base-100 shadow-xl md:card-side">
-      <figure className="basis-3/5">
+      <figure className="relative h-[500px] md:basis-3/5">
         <Image
+          fill
           priority
           alt={product.name}
-          width={800}
-          height={500}
           src={product.imageURL}
-          className="h-[500px] w-full object-cover"
+          className="object-cover"
+          sizes="(max-width: 768px) 100vw, 60vw"
         />
       </figure>
       <div className="card-body basis-2/5">
