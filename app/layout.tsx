@@ -8,6 +8,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "MatinShop",
+  metadataBase: new URL("http://localhost:3000"),
   description: "Matin has created an awesome online shop for you, yay.",
 };
 
