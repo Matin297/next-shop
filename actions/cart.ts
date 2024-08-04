@@ -52,14 +52,22 @@ export async function decrementQuantity(productId: string) {
     const cartItem = cart.items.find((item) => item.productId === productId);
 
     if (cartItem) {
-      await db.cartItem.update({
-        where: {
-          id: cartItem.id,
-        },
-        data: {
-          quantity: { decrement: 1 },
-        },
-      });
+      if (cartItem.quantity > 1) {
+        await db.cartItem.update({
+          where: {
+            id: cartItem.id,
+          },
+          data: {
+            quantity: { decrement: 1 },
+          },
+        });
+      } else {
+        await db.cartItem.delete({
+          where: {
+            id: cartItem.id
+          }
+        })
+      }
     } else {
       db.cartItem.create({
         data: {
@@ -69,6 +77,7 @@ export async function decrementQuantity(productId: string) {
       });
     }
 
+    revalidatePath(`/cart`);
     revalidatePath(`/product/${productId}`);
 
     return {
