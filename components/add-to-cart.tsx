@@ -1,7 +1,7 @@
 "use client";
 
-import { incrementQuantity, decrementQuantity } from "@/actions";
 import { useOptimistic, useState } from "react";
+import { incrementQuantity, decrementQuantity } from "@/actions";
 
 interface AddToCartProps {
   quantity: number;
@@ -10,14 +10,17 @@ interface AddToCartProps {
 
 export default function AddToCart({ productId, quantity = 0 }: AddToCartProps) {
   const [message, setMessage] = useState("");
-  const [optimisticQuantity, updateOptimisticQuantity] = useOptimistic<
-    number,
+  const [optimisticState, updateOptimisticState] = useOptimistic<
+    { quantity: number; isPending?: boolean },
     number
-  >(quantity, (state, step) => state + step);
+  >({ quantity }, (state, step) => ({
+    isPending: true,
+    quantity: state.quantity + step,
+  }));
 
   async function handleUpdateQuantity(formData: FormData) {
     const step = Number(formData.get("step"));
-    updateOptimisticQuantity(step);
+    updateOptimisticState(step);
     const { message } =
       step < 0
         ? await decrementQuantity(productId)
@@ -30,10 +33,14 @@ export default function AddToCart({ productId, quantity = 0 }: AddToCartProps) {
   }
 
   const buttons =
-    optimisticQuantity === 0 ? (
+    optimisticState.quantity === 0 ? (
       <form action={handleUpdateQuantity}>
         <input type="hidden" name="step" value="1" />
-        <button type="submit" className="btn btn-outline btn-primary btn-sm">
+        <button
+          type="submit"
+          disabled={optimisticState.isPending}
+          className="btn btn-outline btn-primary btn-sm"
+        >
           Add to Cart
         </button>
       </form>
@@ -43,16 +50,18 @@ export default function AddToCart({ productId, quantity = 0 }: AddToCartProps) {
           <input type="hidden" name="step" value="-1" />
           <button
             type="submit"
+            disabled={optimisticState.isPending}
             className="btn btn-circle btn-outline btn-primary btn-sm"
           >
             -
           </button>
         </form>
-        <span>{optimisticQuantity}</span>
+        <span>{optimisticState.quantity}</span>
         <form action={handleUpdateQuantity}>
           <input type="hidden" name="step" value="1" />
           <button
             type="submit"
+            disabled={optimisticState.isPending}
             className="btn btn-circle btn-outline btn-primary btn-sm"
           >
             +
