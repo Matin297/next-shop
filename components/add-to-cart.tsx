@@ -50,18 +50,19 @@ export default function AddToCart({ productId, quantity = 0 }: AddToCartProps) {
           <input type="hidden" name="step" value="-1" />
           <button
             type="submit"
-            disabled={optimisticState.isPending}
             className="btn btn-circle btn-outline btn-primary btn-sm"
           >
             -
           </button>
         </form>
         <span>{optimisticState.quantity}</span>
+        {optimisticState.isPending && (
+          <span className="loading loading-spinner loading-xs text-primary"></span>
+        )}
         <form action={handleUpdateQuantity}>
           <input type="hidden" name="step" value="1" />
           <button
             type="submit"
-            disabled={optimisticState.isPending}
             className="btn btn-circle btn-outline btn-primary btn-sm"
           >
             +
