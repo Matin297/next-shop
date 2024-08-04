@@ -56,6 +56,13 @@ export async function getProduct(id: string) {
 
     if (!product) notFound();
 
+    if (!cartId) {
+      return {
+        ...product,
+        cartItems: [],
+      };
+    }
+
     return product;
   } catch (error) {
     if (
