@@ -1,6 +1,7 @@
 import Cart from "./cart";
 import Link from "next/link";
 import Image from "next/image";
+import Profile from "./profile";
 import { Suspense } from "react";
 import LogoImage from "@/assets/logo.png";
 
@@ -14,7 +15,8 @@ export default function Navbar() {
             Matin Shop
           </Link>
         </div>
-        <div className="flex-none gap-2">
+        <div className="flex-none gap-4">
+          <Profile />
           <Suspense fallback={<span>...</span>}>
             <Cart />
           </Suspense>
