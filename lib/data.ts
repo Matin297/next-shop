@@ -1,8 +1,11 @@
+import { auth } from "@/auth";
 import { cache } from "react";
 import db from "@/prisma/client";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
+import { Cart, Prisma } from "@prisma/client";
 import { LOCAL_CART_COOKIE } from "./constants";
+
 import {
   PrismaClientKnownRequestError,
   PrismaClientUnknownRequestError,
@@ -40,7 +43,9 @@ export async function getProducts({ query = "" }: ProductFilterOptionsType) {
 
 export async function getProduct(id: string) {
   try {
+    const session = await auth();
     const cartId = cookies().get(LOCAL_CART_COOKIE)?.value;
+
     const product = await db.product.findUnique({
       where: {
         id,
@@ -48,20 +53,19 @@ export async function getProduct(id: string) {
       include: {
         cartItems: {
           where: {
-            cartId,
+            cart: session?.user?.id
+              ? {
+                  userId: session.user.id,
+                }
+              : {
+                  id: cartId,
+                },
           },
         },
       },
     });
 
     if (!product) notFound();
-
-    if (!cartId) {
-      return {
-        ...product,
-        cartItems: [],
-      };
-    }
 
     return product;
   } catch (error) {
@@ -83,25 +87,48 @@ export async function getProduct(id: string) {
 export const getCachedProduct = cache(getProduct);
 
 export type EnhancedCartType = Awaited<ReturnType<typeof getCart>>;
+type CartWithProducts = Prisma.CartGetPayload<{
+  include: {
+    items: {
+      include: {
+        product: true;
+      };
+    };
+  };
+}>;
 
 export async function getCart() {
   try {
+    const session = await auth();
     const cartId = cookies().get(LOCAL_CART_COOKIE)?.value;
 
-    const cart = cartId
-      ? await db.cart.findUnique({
-          where: {
-            id: cartId,
-          },
-          include: {
-            items: {
-              include: {
-                product: true,
-              },
+    let cart: CartWithProducts | null = null;
+
+    if (session?.user?.id)
+      // private cart
+      cart = await db.cart.findFirst({
+        where: { userId: session.user.id },
+        include: {
+          items: {
+            include: {
+              product: true,
             },
           },
-        })
-      : null;
+        },
+      });
+    else if (cartId) {
+      // local cart
+      cart = await db.cart.findFirst({
+        where: { id: cartId },
+        include: {
+          items: {
+            include: {
+              product: true,
+            },
+          },
+        },
+      });
+    }
 
     if (!cart) return null;
 
@@ -131,10 +158,24 @@ export async function getCart() {
 
 export async function createCart(): Promise<NonNullable<EnhancedCartType>> {
   try {
-    const cart = await db.cart.create({
-      data: {},
-    });
-    cookies().set(LOCAL_CART_COOKIE, cart.id);
+    const session = await auth();
+
+    let cart: Cart;
+    if (session && session.user?.id) {
+      // private cart
+      cart = await db.cart.create({
+        data: {
+          userId: session.user.id,
+        },
+      });
+    } else {
+      // anonymous local cart
+      cart = await db.cart.create({
+        data: {},
+      });
+      cookies().set(LOCAL_CART_COOKIE, cart.id);
+    }
+
     return {
       ...cart,
       items: [],
