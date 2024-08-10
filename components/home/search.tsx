@@ -14,6 +14,8 @@ export default function Search() {
       const query = e.target.value;
       const params = new URLSearchParams(searchParams);
 
+      params.delete("p");
+
       if (query) {
         params.set("q", query);
       } else {
