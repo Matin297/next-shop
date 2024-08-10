@@ -30,6 +30,9 @@ export async function getProducts({
           { description: { contains: query, mode: "insensitive" } },
         ],
       },
+      orderBy: {
+        updatedAt: "desc",
+      },
       take: PRODUCTS_PER_PAGE,
       skip: (page - 1) * PRODUCTS_PER_PAGE,
     });
