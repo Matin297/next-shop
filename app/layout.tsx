@@ -1,4 +1,5 @@
 import "./globals.css";
+import cn from "classnames";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Navbar from "@/components/navbar";
@@ -20,13 +21,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body
+        className={(cn(inter.className), "flex min-h-screen flex-col gap-4")}
+      >
         <SessionProvider>
           <Navbar />
         </SessionProvider>
-        <main className="mx-auto mb-4 min-h-screen max-w-6xl p-4">
-          {children}
-        </main>
+        <main className="mx-auto w-full max-w-6xl px-2">{children}</main>
         <Footer />
       </body>
     </html>
