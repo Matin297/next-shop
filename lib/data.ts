@@ -49,6 +49,26 @@ export async function getProducts({
   }
 }
 
+export async function getTotalProductPages() {
+  try {
+    const count = await db.product.count();
+    return Math.ceil(count / PRODUCTS_PER_PAGE);
+  } catch (error) {
+    if (
+      error instanceof PrismaClientKnownRequestError ||
+      error instanceof PrismaClientKnownRequestError
+    ) {
+      throw new Error(error.message);
+    }
+
+    if (error instanceof Error) {
+      throw error;
+    }
+
+    throw new Error("Failed to fetch the list of products!");
+  }
+}
+
 export async function getProduct(id: string) {
   try {
     const session = await auth();
