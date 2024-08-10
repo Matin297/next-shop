@@ -5,11 +5,13 @@ import ProductList from "@/components/home/product-list";
 interface HomePageProps {
   searchParams: {
     q?: string;
+    p?: string;
   };
 }
 
 export default async function Home(props: HomePageProps) {
   const query = props.searchParams.q;
+  const page = Number(props.searchParams.p || "1");
 
   return (
     <section className="space-y-4">
@@ -18,7 +20,7 @@ export default async function Home(props: HomePageProps) {
         <Search />
       </div>
       <Suspense fallback={<p>loading...</p>}>
-        <ProductList query={query} />
+        <ProductList page={page} query={query} />
       </Suspense>
     </section>
   );
