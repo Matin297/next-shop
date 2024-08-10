@@ -12,10 +12,16 @@ import {
 } from "@prisma/client/runtime/library";
 
 type ProductFilterOptionsType = {
+  page?: number;
   query?: string;
 };
 
-export async function getProducts({ query = "" }: ProductFilterOptionsType) {
+const PRODUCTS_PER_PAGE = 6;
+
+export async function getProducts({
+  query = "",
+  page = 1,
+}: ProductFilterOptionsType) {
   try {
     return db.product.findMany({
       where: {
@@ -24,6 +30,8 @@ export async function getProducts({ query = "" }: ProductFilterOptionsType) {
           { description: { contains: query, mode: "insensitive" } },
         ],
       },
+      take: PRODUCTS_PER_PAGE,
+      skip: (page - 1) * PRODUCTS_PER_PAGE,
     });
   } catch (error) {
     if (
