@@ -10,7 +10,7 @@ interface ProductListProps {
 
 export default async function ProductList({ query, page }: ProductListProps) {
   const [total, products] = await Promise.all([
-    getTotalProductPages(),
+    getTotalProductPages({ query }),
     getProducts({ query, page }),
   ]);
 

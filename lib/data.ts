@@ -52,9 +52,18 @@ export async function getProducts({
   }
 }
 
-export async function getTotalProductPages() {
+export async function getTotalProductPages({
+  query = "",
+}: Omit<ProductFilterOptionsType, "page">) {
   try {
-    const count = await db.product.count();
+    const count = await db.product.count({
+      where: {
+        OR: [
+          { name: { contains: query, mode: "insensitive" } },
+          { description: { contains: query, mode: "insensitive" } },
+        ],
+      },
+    });
     return Math.ceil(count / PRODUCTS_PER_PAGE);
   } catch (error) {
     if (
